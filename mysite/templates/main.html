@@ -1,0 +1,16 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>mydjango</title>
+</head>
+<body>
+    {% if user.is_authenticated %}
+    <p>hello, {{ user.username }}</p><br/>
+    <p><a href="/users/logout/">logout</a></p>
+    {% else %}
+    <p>hello, stranger</p><br/>
+    <p><a href="/users/register/">register</a></p>
+    {% endif %}
+</body>
+</html>
