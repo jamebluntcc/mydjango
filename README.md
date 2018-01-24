@@ -1,6 +1,4 @@
-## django
-
-@(full stack python)
+## mydjango
 
 因为工作的原因，很少接触到 [django](https://www.djangoproject.com/) 。还记得很久很久以前写过仿造一个别人的 blog 项目，那是第一次使用 `django` 。当时给我的感觉是它太全面了，基本集成好了 web 开发的所有工具。在对 web 开发理解很有限的那会儿，我一边抄着代码，一边理解，算是写好了基础的 blog 雏形。
 工作上我们不需要写很大，很全的 web app，加上教我的师兄是用 [flask](http://flask.pocoo.org/) 写的项目。所以我也就很自然而然的进了 `flask` 的坑。在基本会用 `flask` 后现在回过头来看 `django` 其实本质都相差无几。
@@ -266,6 +264,7 @@ def logout():
 
 
 - form
+
 django 也有表单对象，大多数都是直接使用的。比如上面使用的 `UserCreationForm` 直接生成一个用户注册的表单，只是大多数的表单都没有加 css 显得有些简单。在模板上，如果是 POST 方法就一定要有 [CSRF](https://www.cnblogs.com/hyddd/archive/2009/04/09/1432744.html) 保护，实现整个保护也很简单，在表单上添加 `{% crsf_token %}`添加伪随机数就可以了。
 
 
