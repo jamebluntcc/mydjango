@@ -1,8 +1,10 @@
-## mydjango
+## django
+
+@(full stack python)
 
 因为工作的原因，很少接触到 [django](https://www.djangoproject.com/) 。还记得很久很久以前写过仿造一个别人的 blog 项目，那是第一次使用 `django` 。当时给我的感觉是它太全面了，基本集成好了 web 开发的所有工具。在对 web 开发理解很有限的那会儿，我一边抄着代码，一边理解，算是写好了基础的 blog 雏形。
 工作上我们不需要写很大，很全的 web app，加上教我的师兄是用 [flask](http://flask.pocoo.org/) 写的项目。所以我也就很自然而然的进了 `flask` 的坑。在基本会用 `flask` 后现在回过头来看 `django` 其实本质都相差无几。
-所以下面介绍 `django` 会时不时的与 `flask` 作对比。 
+所以下面介绍 `django` 会时不时的与 `flask` 作对比。
 
 ### 项目的标准化
 
@@ -113,7 +115,7 @@ admin.site.register([modelA, modelB])
 然后运行起程序，就可以在后台管理中看到刚刚注册的模型。还有关于后台管理的布局与自定义内容可以参考[这里](https://docs.djangoproject.com/en/2.0/ref/contrib/admin/)。
 
 `TEMPLATES` 涉及到基本所有 web 框架都会有的模板引擎，django 可以使用自带的模板语言，当然也可以使用其他的语言。
-这里我们不会谈模板语言的语法与相关的东西，而是说下在配置文件下的 `TEMPLATES` ，这个参数是配置模板语言路径的， 
+这里我们不会谈模板语言的语法与相关的东西，而是说下在配置文件下的 `TEMPLATES` ，这个参数是配置模板语言路径的，
 
 ![Alt text](./img/django_templates.png)
 
@@ -154,4 +156,119 @@ django-admin startapp users
 数据模型已经实现，所以 models 不需要添加任何内容。直接在 views 中写视图函数。
 
 ```python
-from django.
+from django.shortcuts import render, redirect
+from django.contrib.auth import authenticate, login, logout, forms
+
+def user_login(request):
+	if request.method == 'POST':
+		username = request.POST.get('username')
+		passwd = request.POST.get('password')
+		user = authenticate(username=username, password=passwd)
+		if user and user.is_actvie:
+			login(request, user)
+			return redirect('/')
+	return render(request, 'login.html')
+
+def user_logout(request):
+	logout(request)
+	return redirect('/')
+
+def user_register(request):
+	if request.method == 'POST':
+		form = forms.UserCreationForm(request.POST)
+		if form.is_valid():
+			user = form.save()
+			login(request, user)
+		return redirect('/')
+	form = forms.UserCreationForm()
+	return render(request, 'register.htm', context={'form': form})
+```
+
+上面代码借助 `django.contrib.auth` 实现了一个简单的用户注册，登录与登出功能。这里我会重点与 `flask` 进行对比。
+
+- request 参数
+
+首先最大的不同就是每一个视图都以 `request` 作为参数传入到函数中，在 `flask` 中不会显式将 `request` 作为参数，因为 `flask` 通过 `Context` 即上下文的概念将每一个请求对象设为全局访问，但是每一个请求都是不同上下文对象，这样就巧妙地回避了每一个视图函数传入 `request` 参数，具体的上下文详情可以参考[这里](http://flask.pocoo.org/docs/0.12/appcontext/) 。在 django 中无论是 views 传入还是最后的 render 方法都是以 `request` 作为第一个参数。
+
+- urls 文件
+
+在 `flask` 中不需要单独建立 urls 与 views 的 map 函数，`flask` 这里又再一次使用了魔法，它使用路由装饰实现了 map。当时第一次学习 `flask` 就被这种用法吸引到了。
+在 django 中全部视图函数与 url 的 map 都会在一个叫 urls.py 的文件里，此文件一般如下：
+
+```python
+from django.conf.urls import url
+
+urlpatterns = [
+	url(r'^login/', 'users.views.user_login'),
+	url(r'^logout/', 'users.views.user_logout'),
+	...
+]
+```
+
+`url` 函数接受一个 url 正则表达式与视图函数的名字作为参数，将 url 与 views 绑定起来。
+在主程序里面再用 `include` 方法，将一个应用的全部 urls 关联到一个总的 url 上。
+
+```python
+from django.conf.urls import url, include
+
+urlpatterns = [
+	url(r'^users/', include('users.urls')),
+	...
+]
+```
+
+-  自带认证
+
+`flask` 没有基础的认证机制，最快的方法是使用 [flask-login](https://flask-login.readthedocs.io/en/latest/) 插件，具体实现的过程与 django 的方式基本一致。
+django 提供 `authenticate`函数接受从表单输入的 username 与 password 作为参数，返回一个 `user` 对象，如果此对象存在并且是激活的状态，那就认证成功，随后 `login` 接受请求头 `request` 和 `user` 对象，将此对象保存，实现会话跟踪，在前端模板可以直接使用 `user` 对象。同理 `logout` 就是结束会话。下面我会展示在 `flask` 配合 `flask-login` 如何实现整个过程的。
+
+```python
+from flask import Flask
+from flask_login import UserMixin, LoginManager, login_required, login_user, logout_user
+from flask_sqlalchemy import SQLAlchemy
+
+db = SQLalchemy(app)
+login_manager = LoginManger(app)
+Column = db.Column
+class User(UserMixin, db.Model):
+	__tablename__ = 'users'
+	id = Column(db.Integer, primary_key=True)
+	name = Column(db.String(45))
+	...
+
+
+@login_manager.user_loader
+def load_user(id):
+	return User.query.filter_by(id=int(id)).first()
+
+@app.route('/login', methods=['POST', 'GET'])
+def login():
+	form = LoginForm()
+	if form.validate_on_submit():
+		login_user(user)
+		...
+
+@app.route('/logout')
+@login_required
+def logout():
+	logout_user()
+	return redirect('/')
+```
+
+可以看到 `flask-login`的认证需要实现几个方法，分别是：
+- is_active : 用户是否激活
+- is_authenticated：用户是否认证，在使用 login_required 就是按照此工作的
+- is_anonymous：没有进行认证的用户
+- get_id：返回用户的唯一 id
+
+`flask-login` 中的 `UserMixin` 已经帮助我们实现了这样几个方法，在模板我们可以直接使用 `current_user`。
+`login_manager.user_loader` 装饰一个回调函数，当一个请求发送过来，`flask-login` 会从 session 中寻找用户的 ID，如果找到就会返回此用户对象，如果没有这个回调函数，`flask-login` 将无法正常工作。通过对比发现 django 与 `flask` 的认证机制是很相似的。
+
+
+- form
+django 也有表单对象，大多数都是直接使用的。比如上面使用的 `UserCreationForm` 直接生成一个用户注册的表单，只是大多数的表单都没有加 css 显得有些简单。在模板上，如果是 POST 方法就一定要有 [CSRF](https://www.cnblogs.com/hyddd/archive/2009/04/09/1432744.html) 保护，实现整个保护也很简单，在表单上添加 `{% crsf_token %}`添加伪随机数就可以了。
+
+
+
+
+
