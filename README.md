@@ -14,7 +14,7 @@ django-admin startproject mysite
 
 当你运行上面那段代码，`django` 会自动的在本地建立一个叫 mysite 的文件夹，里面的结构基本如下：
 
-![Alt text](./django-init.png)
+![Alt text](./img/django-init.png)
 
 这个项目就叫 myblog，以自己的输入为准。正如上面所示，启动以一个叫 `manager.py` 的文件作为主文件，然后在此项目下，还有一个叫 myblog 的子文件夹，里面其实就是相当于一个主程序入口，包含了全局的配置，`url` 管理，以及 `wsgi` 的部署。
 
@@ -25,7 +25,7 @@ python manager runserver
 不出意外，当运行上面代码后，点开本地浏览器输入 `127.0.0.1:8000` 就可以看到自己的第一个 `django` 应用上线了！
 虽然自己在这个时候任何事情都还没有干，但是 `django` 已经默认给我做了很多的事情，比如已经搭建了一个拥有强大交互的后台管理。还有用户认证等等，还有很多的其它工作可以在 `settings.py` 文件中看到：
 
-![Alt text](./django_installed_app.png)
+![Alt text](./img/django_installed_app.png)
 
 正如上面看到的，`admin`,`auth`等等，都已经在 INSTALLED_APPS 里集成好了。对于主要写 `flask` 的我来说，这真的是方便多了。但是这里不能直接说 `django`就比 `flask` 好用，`flask` 的定位是"微" 框架，如果你想要和 `django`一样的后台管理或者是认证系统，要么自己实现，要么使用 `flask` 的插件实现，很灵活。所以个人觉得从某个角度来说，并不是像很多人说的那样：学 python web 开发最好从 `flask` 开始，因为 `flask` 比 `django`简单的多。如果要实现一个最基本的应用，不考虑工厂函数，蓝本，各个插件的使用学习成本。也许 `flask` 要比 `django` 简单，但是如果你要实现的是一个比较规模化和模块化的 web app。不见得 `flask` 的学习成本要比 `django`低。
 
@@ -115,7 +115,7 @@ admin.site.register([modelA, modelB])
 `TEMPLATES` 涉及到基本所有 web 框架都会有的模板引擎，django 可以使用自带的模板语言，当然也可以使用其他的语言。
 这里我们不会谈模板语言的语法与相关的东西，而是说下在配置文件下的 `TEMPLATES` ，这个参数是配置模板语言路径的， 
 
-![Alt text](./django_templates.png)
+![Alt text](./img/django_templates.png)
 
 如上面所示，首先我们现在 `BASE_DIR` 下建一个叫 templates 的文件夹来存放我们的模板，对于不同的 app 可以将在此文件夹下再建 app 子模板文件夹。这里和使用过蓝本后的 `flask` 模板很类似。
 
@@ -148,7 +148,7 @@ django-admin startapp users
 ```
 建立 users app 来实现用户的登录和注册。具体的 app 结构如下：
 
-![Alt text](./django_users_app.png)
+![Alt text](./img/django_users_app.png)
 
 基本的结构与 `flask` 非常类似，包括一个 views 文件写主要的视图，一个 models 写主要的数据模型，test 测试文件，不一样的是 urls 文件保存视图与 url 的 map，一个 admin 实现数据模型的后台管理。migrations 对数据模型的版本控制与迁移。
 数据模型已经实现，所以 models 不需要添加任何内容。直接在 views 中写视图函数。
