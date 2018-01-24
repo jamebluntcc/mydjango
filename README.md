@@ -42,7 +42,7 @@ python manager runserver
 
 下面分别说明上面的几个用处：
 
-`ALLOWED_HOSTS` 是设置我们启动 django app 的 host 配置。一般默认的启动是 ``127.0.0.1:8000` ，但是如果你要自己进行修改的话。那就要修改 `ALLOWED_HOSTS`
+`ALLOWED_HOSTS` 是设置我们启动 django app 的 host 配置。一般默认的启动是 `127.0.0.1:8000` ，但是如果你要自己进行修改的话。那就要修改 `ALLOWED_HOSTS`
 
 ```python
 ALLOWED_HOSTS = ['0.0.0.0']
